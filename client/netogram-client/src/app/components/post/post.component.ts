@@ -87,7 +87,6 @@ export class PostComponent implements OnInit, OnDestroy {
   isDragging = false;
   startX = 0;
   scrollLeft = 0;
-  @Input() post!: any;
   currentIndex = 0;
 
   hasMultipleImages(): boolean {
@@ -114,6 +113,7 @@ export class PostComponent implements OnInit, OnDestroy {
   }
 
   // Method to check if the current image is the last one
+  @Input() post!: PostModel;
   isLastImage(): boolean {
     return this.currentIndex === this.postUser.imageUrls.length - 1;
   }
