@@ -89,8 +89,13 @@ export class PostComponent implements OnInit, OnDestroy {
   scrollLeft = 0;
   currentIndex = 0;
 
+  // temporary fix to resolve length check error
+  // hasMultipleImages(): boolean {
+  //   return this.postUser.imageUrls.length > 1;
+  // }
+
   hasMultipleImages(): boolean {
-    return this.postUser.imageUrls.length > 1;
+    return this.postUser?.imageUrls?.length > 1;
   }
 
   toggleFavorite() {
@@ -114,8 +119,14 @@ export class PostComponent implements OnInit, OnDestroy {
 
   // Method to check if the current image is the last one
   @Input() post!: PostModel;
+
+  // temporary fix to resolve length check error
+  // isLastImage(): boolean {
+  //   return this.currentIndex === this.postUser.imageUrls.length - 1;
+  // }
+
   isLastImage(): boolean {
-    return this.currentIndex === this.postUser.imageUrls.length - 1;
+    return this.currentIndex === (this.postUser?.imageUrls?.length || 0) - 1;
   }
 
   prevImage(carousel: HTMLDivElement) {
@@ -169,9 +180,14 @@ export class PostComponent implements OnInit, OnDestroy {
   }
 
   navigateToProfile() {
-    this.router.navigateByUrl(`/profile/${this.postUser.uid}`).then();
-    this.store.dispatch(PostActions.ClearMinePost());
-    this.store.dispatch(ProfileActions.getById({ uid: this.postUser.uid }));
+    if (this.postUser?.uid) {
+      this.router.navigateByUrl(`/profile/${this.postUser.uid}`).then();
+      this.store.dispatch(PostActions.ClearMinePost());
+      this.store.dispatch(ProfileActions.getById({ uid: this.postUser.uid }));
+    } else {
+      console.error('User ID is undefined');
+      // Handle the error appropriately, maybe show a message to the user
+    }
   }
 
   deletePost() {

@@ -1,4 +1,3 @@
-
 .body {
   display: flex;
   justify-content: center;
@@ -32,23 +31,24 @@
 }
 
 .user-suggestions {
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.user-card {
   background-color: var(--surface);
   border-radius: 12px;
+
   .mat-mdc-card-content {
-    padding: 0;
+    padding: 16px;
   }
 
   .user-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
-    transition: background-color 0.2s ease;
-
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--outlineVariant);
-    }
   }
 
   .user-info {
@@ -57,8 +57,8 @@
   }
 
   .user-avatar {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     margin-right: 16px;
     object-fit: cover;
@@ -76,9 +76,13 @@
     color: var(--onSurface);
   }
 
-  .mutual-friends {
+  .user-bio {
     font-size: 14px;
     color: var(--onSurfaceVariant);
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .add-friend-button {
@@ -86,6 +90,7 @@
     border-radius: 12px;
     color: var(--onPrimary);
     text-transform: none;
+    min-width: 120px;
   }
 }
 
@@ -95,4 +100,3 @@
   position: fixed;
   left: 20px;
 }
-
