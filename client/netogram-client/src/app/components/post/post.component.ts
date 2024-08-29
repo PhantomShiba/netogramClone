@@ -7,8 +7,9 @@ import {
 } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatMenu , MatMenuModule, MatMenuItem } from "@angular/material/menu";
 import { AsyncPipe, NgClass, NgForOf, NgIf } from '@angular/common';
-import { NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { PostModel } from '../../models/post.model';
 import { IdToAvatarPipe } from '../../shared/pipes/id-to-avatar.pipe';
 import { IdToNamePipe } from '../../shared/pipes/id-to-name.pipe';
@@ -25,6 +26,7 @@ import { DetailComponent } from '../../page/detail/detail.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Location } from '@angular/common';
 import { filter } from 'rxjs/operators';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 class PostResult {}
 
@@ -43,6 +45,9 @@ class PostResult {}
     NgIf,
     DetailComponent,
     MaterialModule,
+    MatMenu,
+    MatMenuItem,
+    MatMenuModule,
   ],
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss'],
@@ -56,10 +61,13 @@ export class PostComponent implements OnInit, OnDestroy {
       post: PostState;
     }>,
     private dialog: MatDialog,
+    private route: ActivatedRoute,
   ) {}
 
   private routerSubscription: Subscription | null = null;
 
+  isGettingMinePost$ = this.store.select('post', 'isGettingMinePost');
+  isGettingAllPosts$ = this.store.select('post', 'isGettingAllPosts');
   mineProfile$ = this.store.select('profile', 'mine');
   mineUid = '';
 
@@ -106,8 +114,8 @@ export class PostComponent implements OnInit, OnDestroy {
 
   favoriteIcon = 'favorite_outlined';
   commentIcon = 'comment_outlined';
-  shareIcon = 'ios_share_outlined';
-  bookmarkIcon = 'bookmark_outlined';
+  // shareIcon = 'ios_share_outlined';
+  // bookmarkIcon = 'bookmark_outlined';
   isDragging = false;
   startX = 0;
   scrollLeft = 0;
@@ -124,12 +132,12 @@ export class PostComponent implements OnInit, OnDestroy {
         : 'favorite_outlined';
   }
 
-  toggleShare() {
-    this.shareIcon =
-      this.shareIcon === 'ios_share_outlined'
-        ? 'ios_share'
-        : 'ios_share_outlined';
-  }
+  // toggleShare() {
+  //   this.shareIcon =
+  //     this.shareIcon === 'ios_share_outlined'
+  //       ? 'ios_share'
+  //       : 'ios_share_outlined';
+  // }
 
   // Method to check if the current image is the first one
   isFirstImage(): boolean {
@@ -187,29 +195,26 @@ export class PostComponent implements OnInit, OnDestroy {
     carousel.scrollLeft = this.scrollLeft - walk;
   }
 
-  navigateToDetail() {
-    this.router.navigateByUrl(`/detail/${this.postUser.id}`).then();
-    this.store.dispatch(PostActions.GetPostById({ id: this.postUser.id }));
-  }
-
   openPostDetail(post: any) {
     const dialogRef = this.dialog.open(DetailComponent, {
       maxWidth: '100%',
       maxHeight: '100%',
       closeOnNavigation: true,
+      enterAnimationDuration: 0,
+      exitAnimationDuration: 0,
     });
     this.store.dispatch(PostActions.GetPostById({ id: this.postUser.id }));
-
+    // this.router.navigateByUrl(`/detail/${this.postUser.id}`).then();
     this.location.go(`/detail/${this.postUser.id}`);
 
     // const currentUrl = this.router.url;
-    // console.log('post', post);
-
-    //change url to detail. change url but dont change page
+    // // console.log('post', post);
+    //
     // dialogRef.afterClosed().subscribe(() => {
     //   this.location.go(currentUrl);
     // });
   }
+
 
   navigateToProfile() {
       this.router.navigateByUrl(`/profile/${this.postUser.uid}`).then();
@@ -218,8 +223,14 @@ export class PostComponent implements OnInit, OnDestroy {
   }
 
   deletePost() {
-    this.store.dispatch(
-      PostActions.DeletePost({ id: this.postUser.id, uid: this.mineUid }),
-    );
+    const dialogRef = this.dialog.open(ConfirmDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.store.dispatch(
+          PostActions.DeletePost({id: this.postUser.id, uid: this.mineUid}),
+        );
+      }
+    });
   }
 }

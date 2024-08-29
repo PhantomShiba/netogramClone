@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { select, Store } from '@ngrx/store';
 import { ProfileState } from './ngrx/profile/profile.state';
@@ -9,6 +9,9 @@ import { AuthCredentialModel } from './models/auth.model';
 import * as AuthActions from './ngrx/auth/auth.actions';
 import * as ProfileActions from './ngrx/profile/profile.actions';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import * as PostActions from './ngrx/post/post.actions';
+import { DetailComponent } from './page/detail/detail.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',
@@ -38,6 +41,8 @@ export class AppComponent implements OnInit {
   isShowSpinner = true;
 
   constructor(
+    private route: ActivatedRoute,
+    private dialogRef: MatDialog,
     private router: Router,
     private auth: Auth,
     private store: Store<{
@@ -80,6 +85,23 @@ export class AppComponent implements OnInit {
       console.log('idToken', idToken);
     });
 
+    this.route.url.subscribe((url) => {
+      console.log('url', url);
+      const urlSegment = url.join('/');
+      if (urlSegment.startsWith('detail/')) {
+        const id = BigInt(urlSegment.split('/')[1]);
+        console.log('iddetail at home' + ':', id);
+        //convert string to bigint
+        this.store.dispatch(PostActions.GetPostById({ id: id }));
+
+        this.dialogRef.open(DetailComponent, {
+          maxWidth: '100%',
+          maxHeight: '100%',
+          closeOnNavigation: true,
+        });
+      }
+    });
+
     combineLatest([
       this.authCredential$,
       this.isGetMineSuccess$,
@@ -96,9 +118,27 @@ export class AppComponent implements OnInit {
       ]) => {
         if (authCredential.uid) {
           if (isGetMineSuccess && mine?.uid) {
-            this.router.navigate(['/home']).then(() => {
+            console.log('calll');
+            this.store.dispatch(
+              PostActions.GetAllPost({
+                pageNumber: 1,
+                limitNumber: 4,
+              }),
+            );
+            const currentUrl = this.router.url;
+            if (
+              currentUrl === '/friends/friend%20list' ||
+              currentUrl.startsWith('/profile/') ||
+              currentUrl.startsWith('/detail/') ||
+              currentUrl.startsWith('/friends/friend%20request')
+            ) {
               this.isShowSpinner = false;
-            });
+              this.router.navigate([currentUrl]);
+            } else {
+              this.router.navigate(['/home']).then(() => {
+                this.isShowSpinner = false;
+              });
+            }
           } else if (isGetMineFailure && getMineError.status) {
             console.log(getMineError);
             this.router.navigate(['/register']).then(() => {
@@ -110,5 +150,4 @@ export class AppComponent implements OnInit {
       },
     );
   }
-
 }

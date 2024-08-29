@@ -2,16 +2,32 @@
 
   <div class="friend-suggestions">
     <h3>Friend Suggestions</h3>
-    <div *ngFor="let suggestion of suggestions" class="suggestion">
-      <img [src]="suggestion.profilePic" alt="Avatar" class="avatar">
+    <div *ngFor="let suggestion of (suggetedFriends$ | async) " class="suggestion">
+      <img [src]="suggestion.suggestedFriend | idToAvatar| async" alt="Avatar" class="avatar">
       <div class="label">
-        <span class="name">{{ suggestion.name }}</span>
-        <span class="mutual-friends">{{ suggestion.mutual }} mutual friends</span>
+        <span class="name">{{ suggestion.suggestedFriend |idToName| async }}</span>
+        <span class="mutual-friends">{{ suggestion.mutualFriendsCount }} mutual </span>
       </div>
-      <button mat-flat-button class="add-friend-button">
-        <mat-icon>person_add_outlined</mat-icon>
-        Add friend
-      </button>
+
+      @if ((friendSatus$ | async) == null){
+        <button (click)="addFriend(suggestion.suggestedFriend)" class="btnProfile" mat-stroked-button>
+          <div class="box">
+            <span class="material-symbols-outlined">
+              person_add
+            </span>
+            Add Friend
+          </div>
+        </button>
+      } @else {
+          <button class="btnProfile"  (click)="removeRequest(suggestion.suggestedFriend)" mat-stroked-button>
+            <div class="box">
+                <span class="material-symbols-outlined">
+                  pending
+                </span>
+              Requested
+            </div>
+          </button>
+      }
     </div>
   </div>
 </mat-card>

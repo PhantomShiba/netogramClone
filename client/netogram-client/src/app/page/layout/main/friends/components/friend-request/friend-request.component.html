@@ -1,15 +1,18 @@
 <div class="container">
-  <mat-card *ngFor="let user of userList | slice:start:end; let i = index" class="userBox">
-    <img [src]="user.avatar"/>
+  <mat-card *ngFor="let user of (friendRequestList$ | async)! | slice:start:end; let i = index" class="userBox">
+    <img [src]="user.uid | idToAvatar | async "/>
     <div class="user">
       <div class="nameUser">
-        <span>{{user.name}}</span><br>
+        <span>{{user.uid | idToName | async}}</span><br>
       </div>
-      <p>{{user.mutualFriends}}</p>
+<!--      <p>{{user.mutualFriends}}</p>-->
+
     </div>
-    <button mat-flat-button id="confirmButton" class="button">Confirm</button>
-    <button mat-stroked-button class="button">Delete</button>
+    <button mat-flat-button (click)="acceptFriendRequest(user.uid)" id="confirmButton" class="button">Confirm</button>
+    <button mat-stroked-button (click)="deleteFriendRequest(user.uid)" class="button">Delete</button>
   </mat-card>
 </div>
-<mat-paginator [length]="userList.length" [hidePageSize]="true" [pageSizeOptions]="[5]" (page)="handlePageEvent($event)" aria-label="Select page">
+<mat-paginator [length]="(friendRequestList$ | async)?.length" [hidePageSize]="true" [pageSizeOptions]="[5]" (page)="handlePageEvent($event)" aria-label="Select page">
 </mat-paginator>
+
+

@@ -9,7 +9,9 @@
           <div class="username">{{ (profileMine$ | async)?.userName }}</div>
         </div>
         <div>
-          <mat-icon id="closeIcon" (click)="onNoClick()">close</mat-icon>
+          <div class="button-close">
+            <mat-icon id="closeIcon" (click)="onNoClick()">close</mat-icon>
+          </div>
         </div>
       </div>
 
@@ -58,7 +60,10 @@
 
         </div>
       </div>
-      <button (click)="onPost()" mat-button class="share-btn">Share</button>
+      <div class="button-share">
+        <button (click)="onPost()" mat-button class="share-btn">Share</button>
+
+      </div>
       <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none;"/>
     </div>
   </div>

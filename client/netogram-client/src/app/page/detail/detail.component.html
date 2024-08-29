@@ -3,131 +3,135 @@
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 } @else {
-  <div class="container">
-    <div class="image-container">
-      @for (postDetail of postDetail.imageUrls; track $index) {
-        <div
-          class="carousel-item"
-          [ngClass]="{ active: $index === currentIndex }"
-        >
+  <div [ngClass]="{ 'blur': isLoading }">
+    <div class="container">
+      <div class="image-container">
+        @for (postDetail of postDetail.imageUrls; track $index) {
           <div
-            class="bg-image"
-            [ngStyle]="{
+            class="carousel-item"
+            [ngClass]="{ active: $index === currentIndex }"
+          >
+            <div
+              class="bg-image"
+              [ngStyle]="{
                 'background-image': 'url(' + postDetail + ')'
               }"
-          ></div>
-          <div class="bg-text">
-            <img
-              style="object-fit: contain;"
-              width="100%"
-              height="100%"
-              [src]="postDetail"
-            />
+            ></div>
+            <div class="bg-text">
+              <img
+                style="object-fit: contain;"
+                width="100%"
+                height="100%"
+                [src]="postDetail"
+              />
+            </div>
           </div>
-        </div>
-      }
-
-      <button mat-icon-button class="close-button" (click)="goBack()">
-        <mat-icon>close</mat-icon>
-      </button>
-
-      <!-- Navigation Buttons -->
-      <button *ngIf="!isFirstImage() && !isSingleImage()" mat-icon-button class="prev-button" (click)="prevImage()">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
-      <button *ngIf="!isLastImage() && !isSingleImage()" mat-icon-button class="next-button" (click)="nextImage()">
-        <mat-icon>chevron_right</mat-icon>
-      </button>
-    </div>
-    <div class="details-container">
-      <div class="post-header">
-        <div class="profile-pic">
-          <img src="{{ postDetail.uid | idToAvatar | async }}" (click)="navigateToProfile()" alt="Profile Picture"/>
-        </div>
-        <div class="post-info">
-          <span class="username">{{ postDetail.uid | idToName | async }}</span>
-          <span class="post-date">{{ postDetail.createdAt | dateTranform }}</span>
-        </div>
-        <div class="post-options">
-          <button mat-icon-button>
-            <span class="material-symbols-outlined">more_horiz</span>
-          </button>
-        </div>
-      </div>
-      <div class="post-content">
-        <p>{{ postDetail.content }}</p>
-        <span class="likes">{{ likes }} likes</span>
-      </div>
-      <div class="post-actions">
-<!--        <button mat-icon-button (click)="toggleFavorite()">-->
-<!--          <mat-icon [ngClass]="{'favorite': favoriteIcon === 'favorite'}">{{ favoriteIcon }}</mat-icon>-->
-<!--        </button>-->
-        @if (isLiked$ | async){
-          <button mat-icon-button id="liked" type="button" (click)="unlikePost()">
-            <mat-icon>favorite</mat-icon>
-          </button>
-        } @else {
-          <button mat-icon-button id="notLiked" type="button" (click)="createLikePost()">
-            <mat-icon>favorite_outlined</mat-icon>
-          </button>
         }
 
-        <button mat-button class="count">
-          <div class="comment-bt">
-            <span class="material-symbols-outlined">comment</span>
-            <span style="margin: 0">{{(commentList$ | async)!.length}}</span>
-          </div>
+        <button mat-icon-button class="close-button" (click)="goBack()">
+          <mat-icon>close</mat-icon>
         </button>
-        <button mat-icon-button (click)="toggleShare()">
-          <mat-icon>{{ shareIcon }}</mat-icon>
+
+        <!-- Navigation Buttons -->
+        <button *ngIf="!isFirstImage() && !isSingleImage()" mat-icon-button class="prev-button" (click)="prevImage()">
+          <mat-icon>chevron_left</mat-icon>
         </button>
-        <div class="spacer"></div> <!-- Add a spacer to push the bookmark button to the right -->
-        <button mat-icon-button (click)="toggleBookmark()">
-          <mat-icon>{{ bookmarkIcon }}</mat-icon>
+        <button *ngIf="!isLastImage() && !isSingleImage()" mat-icon-button class="next-button" (click)="nextImage()">
+          <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
-
-    <form (submit)="createComment()" [formGroup]="commentForm">
-      <mat-form-field appearance="outline">
-        <mat-label>Comment</mat-label>
-        <input matInput formControlName="text" placeholder="Type your comment here...">
-        <button  (click)="createComment()" mat-icon-button matSuffix type="button">
-          <mat-icon>send</mat-icon>
-        </button>
-      </mat-form-field>
-    </form>
-
-    <div class="comments-section">
-      @for (user of (commentList$ | async) ; track $index) {
-        <div class="comment">
-          <div class="profile-pic-small">
-            <img [src]=" user.uid | idToAvatar| async" (click)="navigateToCommentUser(user.uid)">
+      <div class="details-container">
+        <div class="post-header">
+          <div class="profile-pic">
+            <img src="{{ postDetail.uid | idToAvatar | async }}" (click)="navigateToProfile()" alt="Profile Picture"/>
           </div>
-          <div class="comment-content">
-            <span class="comment-username" (click)="navigateToCommentUser(user.uid)">{{ user.uid | idToName | async }}</span>
-            <span class="comment-text">{{ user.text }}</span>
-            <span class="comment-date">{{ user.createdAt | dateTranform }}</span>
+          <div class="post-info">
+            <span class="username">{{ postDetail.uid | idToName | async }}</span>
+            <span class="post-date">{{ postDetail.createdAt | dateTranform }}</span>
           </div>
-          <div class="comment-options">
-            <button mat-icon-button [matMenuTriggerFor]="menu">
+          <div class="post-options">
+            <button mat-icon-button>
               <span class="material-symbols-outlined">more_horiz</span>
             </button>
           </div>
-          <mat-menu #menu="matMenu">
-              <button mat-menu-item>
-                <div class="delete-comment">
-                  <span class="material-symbols-outlined">delete</span>
-                  Delete
-                </div>
-              </button>
-          </mat-menu>
         </div>
-      }
-      @if (displayedComments < (commentList$ | async)!.length) {
-        <button mat-button (click)="loadMoreComments()">View more comments</button>
-      }
+        <div class="post-content">
+          <p>{{ postDetail.content }}</p>
+          <span class="likes">{{ likes }} likes</span>
+        </div>
+        <div class="post-actions">
+          <!--        <button mat-icon-button (click)="toggleFavorite()">-->
+          <!--          <mat-icon [ngClass]="{'favorite': favoriteIcon === 'favorite'}">{{ favoriteIcon }}</mat-icon>-->
+          <!--        </button>-->
+          @if (isLiked$ | async) {
+            <button mat-icon-button id="liked" type="button" (click)="unlikePost()">
+              <mat-icon>favorite</mat-icon>
+            </button>
+          } @else {
+            <button mat-icon-button id="notLiked" type="button" (click)="createLikePost()">
+              <mat-icon>favorite_outlined</mat-icon>
+            </button>
+          }
+
+          <button mat-button class="count">
+            <div class="comment-bt">
+              <span class="material-symbols-outlined">comment</span>
+              <span style="margin: 0">{{ (commentList$ | async)!.length }}</span>
+            </div>
+          </button>
+          <button mat-icon-button (click)="toggleShare()">
+            <mat-icon>{{ shareIcon }}</mat-icon>
+          </button>
+          <div class="spacer"></div> <!-- Add a spacer to push the bookmark button to the right -->
+          <button mat-icon-button (click)="toggleBookmark()">
+            <mat-icon>{{ bookmarkIcon }}</mat-icon>
+          </button>
+        </div>
+
+        <form (submit)="createComment()" [formGroup]="commentForm">
+          <mat-form-field appearance="outline">
+            <mat-label>Comment</mat-label>
+            <input matInput formControlName="text" placeholder="Type your comment here...">
+            <button (click)="createComment()" mat-icon-button matSuffix type="button">
+              <mat-icon>send</mat-icon>
+            </button>
+          </mat-form-field>
+        </form>
+
+        <div class="comments-section">
+          @for (user of (commentList$ | async); track $index) {
+            <div class="comment">
+              <div class="profile-pic-small">
+                <img [src]=" user.uid | idToAvatar| async" (click)="navigateToCommentUser(user.uid)">
+              </div>
+              <div class="comment-content">
+              <span class="comment-username"
+                    (click)="navigateToCommentUser(user.uid)">{{ user.uid | idToName | async }}</span>
+                <span class="comment-text">{{ user.text }}</span>
+                <span class="comment-date">{{ user.createdAt | dateTranform }}</span>
+              </div>
+              <div class="comment-options">
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <span class="material-symbols-outlined">more_horiz</span>
+                </button>
+              </div>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item>
+                  <div class="delete-comment">
+                    <span class="material-symbols-outlined">delete</span>
+                    Delete
+                  </div>
+                </button>
+              </mat-menu>
+            </div>
+          }
+          @if (displayedComments < (commentList$ | async)!.length) {
+            <button mat-button (click)="loadMoreComments()">View more comments</button>
+          }
+        </div>
+      </div>
+
     </div>
   </div>
 
-  </div>
 }

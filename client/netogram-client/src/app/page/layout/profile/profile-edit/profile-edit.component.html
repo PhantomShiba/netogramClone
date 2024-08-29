@@ -112,13 +112,23 @@
         </div>
 
         <!--Done button-->
+        <div *ngIf="submissionStatus === 'success'" class="submission-message success">
+
+        </div>
+        <div *ngIf="submissionStatus === 'error'" class="submission-message error">
+
+        </div>
+
         @if (isUpdateLoading$ | async) {
           <div class="spinner-loading">
             <mat-spinner [diameter]="32"></mat-spinner>
           </div>
         } @else {
           <button mat-flat-button color="primary" (click)="onSubmit()" class="submit-button">Done</button>
+
+
         }
+
       </form>
     </div>
   </div>

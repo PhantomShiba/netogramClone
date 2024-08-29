@@ -10,6 +10,18 @@
 
 .example-card-header {
   padding: 0;
+  flex-grow: 1;
+}
+
+.post-options {
+  margin-left: auto;
+}
+
+.delete-post {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 10px;
 }
 
 .example-header-image {

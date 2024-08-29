@@ -6,34 +6,9 @@
     <div class="main">
       <div class="search">
         <span class="material-symbols-outlined">
-          <search></search>
+        
         </span>
-        <input [formControl]="searchControl"
-               placeholder="Search profiles"
-               id="searchInput"
-               (keyup)="onSearchKeyUp($event)"
-               [matAutocomplete]="auto">
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="navigateToProfile($event.option.value)">
-          <mat-option *ngIf="!searchControl.value" disabled>
-            Nothing is searched yet
-          </mat-option>
-          <mat-option
-            *ngFor="let profile of searchControl">
-            <mat-card-content>
-              <div class="user-item">
-                <div class="user-info">
-                  <img [src]="profile.uid| idToAvatar |async"
-                       [alt]="profile"
-                       (click)="navigateToProfile(profile)" class="user-avatar">
-                  <div class="user-details">
-                    <div class="user-name">{{ profile.uid|idToName|async }}</div>
-                  </div>
-                </div>
-          </mat-option>
-          <mat-option *ngIf="(filterProfiles(searchControl.value) | async)?.length === 0 && searchControl.value" disabled>
-            No matching profiles found
-          </mat-option>
-        </mat-autocomplete>
+        <input [formControl]="searchControl" placeholder="Search" id="searchInput" (keyup)="onSearchKeyUp($event)">
       </div>
     </div>
     <div class="right">

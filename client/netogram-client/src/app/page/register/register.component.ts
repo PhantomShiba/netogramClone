@@ -43,6 +43,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     userName: new FormControl('', [
       Validators.required,
       Validators.minLength(5),
+      Validators.maxLength(20),
     ]),
     avatarUrl: new FormControl(''),
     uid: new FormControl(''),
@@ -62,7 +63,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
   readonly userName = new FormControl('', [
     Validators.required,
     Validators.minLength(5),
+    Validators.maxLength(20),
   ]);
+
+  getMineSuccess$ = this.store.select('profile', 'isGetMineSuccess');
 
   errorMessage = signal('');
 
@@ -71,7 +75,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private store: Store<{
       profile: ProfileState;
       auth: AuthState;
-    }>,
+    }>
   ) {
     this.subscription.push(
       this.store.select('auth').subscribe((auth: AuthState) => {
@@ -83,12 +87,12 @@ export class RegisterComponent implements OnInit, OnDestroy {
             uid: auth.authCredential.uid,
           });
         }
-      }),
+      })
     );
 
     merge(
       this.regisForm.get('userName')!.statusChanges,
-      this.regisForm.get('userName')!.valueChanges,
+      this.regisForm.get('userName')!.valueChanges
     )
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
@@ -97,9 +101,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.createMineSuccess$.subscribe((isSuccess) => {
       if (isSuccess) {
-        this.router.navigate(['/home']).then(() => {
-          this.store.dispatch(ProfileActions.getMine({ uid: this.uid }));
-        });
+        this.store.dispatch(ProfileActions.getMine({ uid: this.uid }));
+      }
+    });
+
+    this.getMineSuccess$.subscribe((isSuccess) => {
+      if (isSuccess) {
+        this.router.navigate(['/home']).then();
       }
     });
   }
@@ -110,22 +118,32 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   updateErrorMessage() {
     const userName = this.regisForm.get('userName');
-    if (userName?.hasError('required')) {
+    if (this.userName.hasError('required')) {
+      this.errorMessage.set('Name is required');
+    } else if (this.userName.hasError('minLength')) {
       this.errorMessage.set('Name must be at least 5 characters long');
+    } else if (this.userName.hasError('maxLength')) {
+      this.errorMessage.set('Name must not exceed 20 characters');
     } else {
       this.errorMessage.set('');
     }
   }
+
   canProceed(): boolean {
     return this.regisForm.get('userName')?.valid ?? false;
   }
 
   register() {
-    if (!this.canProceed()) {
+    const userName = this.regisForm.get('userName')?.value ?? '';
+
+    if (userName.length < 5) {
       this.errorMessage.set('Name must be at least 5 characters long');
       return;
-    }else {
-      console.log('run')
+    } else if (userName.length > 20) {
+      this.errorMessage.set('Name must not exceed 20 characters');
+      return;
+    } else {
+      console.log('run');
       this.regisData = {
         email: this.regisForm.value.email ?? '',
         userName: this.regisForm.value.userName ?? '',
@@ -133,7 +151,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
         bio: '',
         avatarUrl: this.regisForm.value.avatarUrl ?? '',
         coverUrl: '',
-      }
+      };
     }
 
     console.log(this.regisData);

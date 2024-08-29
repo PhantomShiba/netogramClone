@@ -15,25 +15,40 @@
 //  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 //  overflow-y: auto; /* Allow scrolling within the post */
 //}
-.container{
+
+.form-post {
+  height: calc(100% - 24px);
+}
+
+.container {
   //display: flex;
   //justify-content: center;
   //align-items: center;
-  height: 60vh; /* Increased height */
+  height: 100%; /* Increased height */
   background-color: var(--onPrimary);
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+
 
 }
-.post{
+
+.post {
   background-color: var(--surface);
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
   //width: 47vw;
   //height: 45vh;
 }
+
 .post-header {
   display: flex;
   align-items: center;
   flex-direction: row;
   justify-content: space-between;
-  padding: 12px;
+  padding: 20px 25px;
   border-bottom: 1px solid #e6e6e6;
   background-color: var(--onPrimary);
 }
@@ -56,13 +71,12 @@
 }
 
 .post-content {
-  padding: 12px 25px;
+  padding: 0 25px;
   height: fit-content;
   background-color: var(--surface);
   display: flex;
   flex-direction: column;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #comment {
@@ -185,10 +199,15 @@
   font-size: 20px; /* Increased icon size */
 }
 
+.button-share {
+  width: calc(100% - 50px);
+  padding: 0 25px;
+}
+
 .share-btn {
-  background-color: #8f4952;
+  background-color: var(--primary);
   color: white;
-  padding: 8px 16px;
+  padding: 0 12px;
   margin-left: 5px;
   border-radius: 8px;
   width: 98%;
@@ -208,77 +227,67 @@
   gap: 10px;
 }
 
-#closeIcon {
+.button-close {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50px;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
-    transform: scale(0.9);
-    color: var(--error);
+    background-color: #e1e1e1;
   }
+
+
 }
-.mat-mdc-dialog-surface{
+
+
+.mat-mdc-dialog-surface {
   width: 100%;
   height: 100%;
 }
+
 /* Portrait and Landscape */
-@media only screen
-and (min-device-width: 768px)
-and (max-device-width: 1024px)
-and (-webkit-min-device-pixel-ratio: 1) {
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
 
 }
 
 /* Portrait */
-@media only screen
-and (min-device-width: 768px)
-and (max-device-width: 1024px)
-and (orientation: portrait)
-and (-webkit-min-device-pixel-ratio: 1) {
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1) {
   .post-content textarea {
     height: 17vh;
   }
-  .carousel-container{
+  .carousel-container {
     height: 41vh;
   }
 }
 
 /* Landscape */
-@media only screen
-and (min-device-width: 768px)
-and (max-device-width: 1024px)
-and (orientation: landscape)
-and (-webkit-min-device-pixel-ratio: 1) {
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
 
 }
+
 /* Portrait and Landscape */
-@media only screen
-and (min-device-width: 1024px)
-and (max-device-width: 1366px)
-and (-webkit-min-device-pixel-ratio: 2) {
+@media only screen and (min-device-width: 1024px) and (max-device-width: 1366px) and (-webkit-min-device-pixel-ratio: 2) {
 
 }
 
 /* Portrait */
-@media only screen
-and (min-device-width: 1024px)
-and (max-device-width: 1024px)
-and (orientation: portrait)
-and (-webkit-min-device-pixel-ratio: 2) {
+@media only screen and (min-device-width: 1024px) and (max-device-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 2) {
   .post-content textarea {
     height: 17vh;
   }
-  .carousel-container{
+  .carousel-container {
     height: 43vh;
   }
 }
 
 /* Landscape */
-@media only screen
-and (min-device-width: 1366px)
-and (max-device-width: 1366px)
-and (orientation: landscape)
-and (-webkit-min-device-pixel-ratio: 2) {
+@media only screen and (min-device-width: 1366px) and (max-device-width: 1366px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 2) {
   .post-content textarea {
     height: 18vh;
   }
 }
+

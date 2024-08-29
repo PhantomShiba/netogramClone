@@ -3,7 +3,7 @@ import {
   importProvidersFrom,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -29,11 +29,13 @@ import {CommentEffects} from "./ngrx/comment/comment.effects";
 import {commentReducer} from "./ngrx/comment/comment.reducer";
 import {likepostReducer} from "./ngrx/likepost/likepost.reducer";
 import {LikepostEffects} from "./ngrx/likepost/likepost.effects";
+import {FriendshipEffects} from "./ngrx/friend-ship/friend-ship.effects";
+import {friendshipReducer} from "./ngrx/friend-ship/friend-ship.reducer";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideAnimationsAsync(),
     provideStore(),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
@@ -46,7 +48,8 @@ export const appConfig: ApplicationConfig = {
       StorageEffects,
       searchEffects,
       CommentEffects,
-      LikepostEffects
+      LikepostEffects,
+      FriendshipEffects
     ),
     provideState({ name: 'auth', reducer: authReducer }),
     provideState({ name: 'profile', reducer: profileReducer }),
@@ -55,6 +58,7 @@ export const appConfig: ApplicationConfig = {
     provideState({ name: 'search', reducer: SearchReducer }),
     provideState({ name: 'comment', reducer: commentReducer }),
     provideState({ name: 'likePost', reducer: likepostReducer }),
+    provideState({ name: 'friendship', reducer: friendshipReducer }),
     HttpClientAuth,
     provideHttpClient(),
     provideAnimationsAsync(),

@@ -141,6 +141,10 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
             ProfileActions.getMine({ uid: this.profileMine.uid }),
           );
 
+          this.store.dispatch(
+            ProfileActions.getById({ uid: this.profileMine.uid }),
+          );
+
           console.log('Profile updated successfully');
           this.snackBar.open('Profile updated successfully', 'Close', {
             duration: 3000,

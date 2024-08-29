@@ -18,7 +18,7 @@ export class LikepostEffects {
 
   createLikePost$ = createEffect(() => this.actions$.pipe(
     ofType(LikepostActions.createLikepost),
-    mergeMap((action) => this.likepostService.createLikePost(action.likePost).pipe(
+    switchMap((action) => this.likepostService.createLikePost(action.likePost).pipe(
         map((likePost: LikepostModel) => {
           return  LikepostActions.createLikepostSuccess({likePost});
         }),

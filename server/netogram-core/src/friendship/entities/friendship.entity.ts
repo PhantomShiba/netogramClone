@@ -16,4 +16,5 @@ export class Friendship {
 
   @Column({ type: 'timestamp'})
   createdAt : string;
+
 }

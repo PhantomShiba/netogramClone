@@ -8,7 +8,7 @@ import { FriendshipModel } from '../../models/friendship.model';
 export class FriendShipService {
   constructor(private httpClient: HttpClientAuth) {}
 
-  getFriendRequests(uid: string, page: number, limit: number) {
+  getFriendList(uid: string, page: number, limit: number) {
     return this.httpClient.get(`friendship/${uid}?page=${page}&limit=${limit}`);
   }
 
@@ -20,7 +20,23 @@ export class FriendShipService {
     return this.httpClient.put('friendship/reply', friendShipModel);
   }
 
-  unfriend(uid: string, friendUid: string) {
-    return this.httpClient.delete(`friendship/unfriend/${uid}/${friendUid}`);
+  getFriendshipStatus(friendUid: string) {
+    return this.httpClient.get(`friendship/status/${friendUid}`);
+  }
+
+  getFriendRequestList(uid: string, page: number, limit: number) {
+    return this.httpClient.get(`friendship/friend-request/${uid}?page=${page}&limit=${limit}`);
+  }
+
+  getMutualFriends(uid: string, friendUid: string){
+    return this.httpClient.get(`friendship/mutuals/${uid}/${friendUid}`);
+  }
+
+  getSuggestedFriends(uid: string, page:number, limit:number){
+    return this.httpClient.get(`friendship/suggest/${uid}?page=${page}&limit=${limit}`);
+  }
+
+  unfriend( friendUid: string,uid: string) {
+    return this.httpClient.delete(`friendship/unfriend/${friendUid}/${uid}`);
   }
 }

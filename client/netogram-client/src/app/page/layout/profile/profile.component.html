@@ -41,7 +41,9 @@
           </div>
           <div class="nameContainer">
             <span>{{ mineProfile.userName }}</span>
-            <p>150 Mutual Friends</p>
+            @if ((mutualFriends$ | async) != 0){
+              <p>{{mutualFriends$ | async}} Mutual Friends</p>
+            }
           </div>
           <div class="addfrButtonContainer">
 
@@ -56,7 +58,8 @@
                 </div>
               </button>
             } @else {
-              <button class="btnProfile" style="display: none" mat-stroked-button>
+              @if ((friendshipStatus$ | async) == null){
+              <button (click)="sentFriendRequest()" class="btnProfile" mat-stroked-button>
                 <div class="box">
             <span class="material-symbols-outlined">
               person_add
@@ -64,18 +67,33 @@
                   Add Friend
                 </div>
               </button>
-            }
+              } @else if ((friendshipStatus$ | async)?.status == 'pending'){
+                @if ((friendshipStatus$ | async)?.uid == mineUid){
+                  <button class="btnProfile"  (click)="sendUnfriend()" mat-stroked-button>
+                    <div class="box">
+                <span class="material-symbols-outlined">
+                  pending
+                </span>
+                      Requested
+                    </div>
+                  </button>
+                } @else {
+                  <button mat-flat-button id="confirmButton" class="button">Confirm</button>
+                  <button mat-stroked-button (click)="sendUnfriend()" class="button">Delete</button>
 
+                }
 
-
-            <button class="btnProfile" style="display: none;" mat-stroked-button>
-              <div class="box">
+              } @else {
+                <button class="btnProfile" (click)="sendUnfriend()" mat-stroked-button>
+                  <div class="box">
               <span class="material-symbols-outlined">
                 person_check
               </span>
-                Friends
-              </div>
-            </button>
+                    Friends
+                  </div>
+                </button>
+              }
+            }
 
           </div>
         </div>
@@ -100,9 +118,7 @@
             <mat-spinner></mat-spinner>
           </div>
         }
-
       </div>
-
 
     </div>
     <div class="right">

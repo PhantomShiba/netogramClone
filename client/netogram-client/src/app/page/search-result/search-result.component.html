@@ -1,4 +1,4 @@
-<app-navbar></app-navbar>
+<!-- <app-navbar></app-navbar>
 <div class="container">
   <router-outlet></router-outlet>
   <div class="body">
@@ -21,13 +21,48 @@
                   <div class="user-name">{{ profile.uid|idToName|async }}</div>
                 </div>
               </div>
-              <button mat-flat-button class="add-friend-button">
-                <mat-icon>person_add_outlined</mat-icon>
-                Add friend
-              </button>
+
+                @if ((friendshipStatus$ | async) == null){
+                  <button (click)="addFriendSearch(profile.uid)" class="btnProfile" mat-stroked-button>
+                    <div class="box">
+            <span class="material-symbols-outlined">
+              person_add
+            </span>
+                      Add Friend
+                    </div>
+                  </button>
+                } @else if ((friendshipStatus$ | async)?.status == 'pending'){
+                  @if ((friendshipStatus$ | async)?.uid == mineUid){
+                    <button class="btnProfile"   mat-stroked-button>
+                      <div class="box">
+                <span class="material-symbols-outlined">
+                  pending
+                </span>
+                        Requested
+                      </div>
+                    </button>
+                  } @else {
+                    <button mat-flat-button id="confirmButton" class="button">Confirm</button>
+                    <button mat-stroked-button  class="button">Delete</button>
+
+                  }
+
+                } @else {
+                  <button class="btnProfile"  mat-stroked-button>
+                    <div class="box">
+              <span class="material-symbols-outlined">
+                person_check
+              </span>
+                      Friends
+                    </div>
+                  </button>
+                }
+
             </div>
           </mat-card-content>
-          </ng-container>
+        }
+
+
       </mat-card>
       <div class="post">
       </div>
@@ -36,4 +71,4 @@
       }
     </div>
   </div>
-</div>
+</div> -->

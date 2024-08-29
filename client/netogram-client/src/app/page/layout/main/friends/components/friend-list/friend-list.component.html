@@ -1,35 +1,64 @@
 <div class="friends">
-  @for(friend of friendsList | slice:start:end; track $index ){
+  @for (friend of (this.friendships$ | async) | slice:start:end; track $index) {
 
     <mat-card class="friendcontainer">
-      <div class="friendavaname">
-        <img src="{{friend.avatar}}"/>
-        <div class="nameMutual">
-          <div class="nameUser">
-            <span>{{ friend.name }}</span><br>
-          </div>
-          <p>{{friend.mutualFriends}}</p>
-        </div>
-      </div>
-      <div id="icon">
-        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
-          <mat-icon>more_horizon</mat-icon>
 
-        </button>
-        <mat-menu id="optionMenu" style="display: flex; flex-direction: row" #menu="matMenu">
-          <button mat-menu-item>
+      @if (friend.friendUid != (mineProfile$ | async)?.uid) {
+        <div class="friendavaname">
+          <img src="{{friend.friendUid | idToAvatar | async}}"/>
+          <div class="nameMutual">
+            <div class="nameUser">
+              <span>{{ friend.friendUid | idToName | async }}</span><br>
+            </div>
+            <!--          <p>{{friend.mutualFriends}}</p>-->
+          </div>
+        </div>
+        <div class="icon">
+          <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+            <mat-icon>more_horizon</mat-icon>
+
+          </button>
+          <mat-menu class="optionMenu" style="display: flex; flex-direction: row" #menu="matMenu">
+            <button (click)="this.deleteFriend(friend.friendUid)" mat-menu-item>
               <div class="optionBox">
                 <span class="material-symbols-outlined">person_cancel</span>
                 Unfriend
               </div>
             </button>
-        </mat-menu>
-      </div>
+          </mat-menu>
+        </div>
+      } @else {
+        <div class="friendavaname">
+          <img src="{{friend.uid | idToAvatar | async}}"/>
+          <div class="nameMutual">
+            <div class="nameUser">
+              <span>{{ friend.uid | idToName | async }}</span><br>
+            </div>
+            <!--          <p>{{friend.mutualFriends}}</p>-->
+          </div>
+        </div>
+        <div class="icon">
+          <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+            <mat-icon>more_horizon</mat-icon>
+
+          </button>
+          <mat-menu id="optionMenu" style="display: flex; flex-direction: row" #menu="matMenu">
+            <button (click)="this.deleteFriend(friend.friendUid)" mat-menu-item>
+              <div class="optionBox">
+                <span class="material-symbols-outlined">person_cancel</span>
+                Unfriend
+              </div>
+            </button>
+          </mat-menu>
+        </div>
+      }
+
     </mat-card>
   }
 </div>
 
-<mat-paginator [length]="friendsList.length" [hidePageSize]="true" [pageSizeOptions]="pageSizeOptions" (page)="handlePageEvent($event)" aria-label="Select page">
+<mat-paginator [length]="(this.friendships$| async)?.length" [hidePageSize]="true" [pageSizeOptions]="pageSizeOptions"
+               (page)="handlePageEvent($event)" aria-label="Select page">
 </mat-paginator>
 
 

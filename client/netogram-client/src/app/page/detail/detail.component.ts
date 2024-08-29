@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
 import { MaterialModule } from '../../shared/material.module';
 import {
   AsyncPipe,
@@ -28,7 +28,8 @@ import * as PostActions from '../../ngrx/post/post.actions';
 import { LikepostState } from '../../ngrx/likepost/likepost.state';
 import * as LikeActions from '../../ngrx/likepost/likepost.actions';
 import { LikepostModel } from '../../models/likepost.model';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { clearState } from '../../ngrx/comment/comment.actions';
 
 @Component({
   selector: 'app-detail',
@@ -47,6 +48,10 @@ import { MatDialogRef } from '@angular/material/dialog';
   ],
   templateUrl: './detail.component.html',
   styleUrl: './detail.component.scss',
+  providers: [
+    { provide: MatDialogRef, useValue: {} },
+    { provide: MAT_DIALOG_DATA, useValue: {} },
+  ],
 })
 export class DetailComponent implements OnInit, OnDestroy {
   commentForm = new FormGroup({
@@ -70,6 +75,7 @@ export class DetailComponent implements OnInit, OnDestroy {
 
   constructor(
     private dialogRef: MatDialogRef<DetailComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private location: Location,
     private router: Router,
     private activeRoute: ActivatedRoute,
@@ -80,8 +86,22 @@ export class DetailComponent implements OnInit, OnDestroy {
       likePost: LikepostState;
     }>,
   ) {
-    const { postId } = this.activeRoute.snapshot.params;
-    console.log('postId', postId);
+    this.postDetail$.subscribe((post) => {
+      if (post.id) {
+        this.postDetail = post;
+        this.store.dispatch(
+          LikeActions.getLikepostCount({
+            postId: Number(this.postDetail.id),
+          }),
+        );
+        this.store.dispatch(
+          LikeActions.getIsLiked({ postId: Number(this.postDetail.id) }),
+        );
+        this.store.dispatch(
+          CommentActions.getComments({ postId: Number(this.postDetail.id) }),
+        );
+      }
+    });
   }
 
   isDeleteLikeSuccess$ = this.store.select('likePost', 'isUnLikedSuccess');
@@ -91,6 +111,8 @@ export class DetailComponent implements OnInit, OnDestroy {
   likeCount$ = this.store.select('likePost', 'likeCount');
 
   createLikedSuccess$ = this.store.select('likePost', 'success');
+
+  isLoading = false;
 
   createCommentSuccess$ = this.store.select(
     'comment',
@@ -106,11 +128,19 @@ export class DetailComponent implements OnInit, OnDestroy {
   postDetail$ = this.store.select('post', 'postDetail');
 
   isGettingPostDetail$ = this.store.select('post', 'isGettingPostDetail');
+  creteCommentSuccess$ = this.store.select('comment', 'isCreateCommentSuccess');
+  createLikeSuccess$ = this.store.select('likePost', 'success');
 
   profile$ = this.store.select('profile', 'profile');
 
   ngOnInit(): void {
     this.subscriptions.push(
+      this.activeRoute.params.subscribe((params) => {
+        console.log(params['id']);
+        // const id = BigInt(params['id']);
+        // this.store.dispatch(PostActions.GetPostById({ id }));
+      }),
+
       this.profileMine$.subscribe((profile) => {
         if (profile) {
           this.profileMine = profile;
@@ -123,39 +153,87 @@ export class DetailComponent implements OnInit, OnDestroy {
         this.likes = likeCount;
       }),
 
-      this.postDetail$.subscribe((post) => {
-        if (post && post.id) {
+      this.createCommentSuccess$.subscribe((success) => {
+        if (success) {
+          this.isLoading = false;
           this.store.dispatch(
-            CommentActions.getComments({ postId: Number(post.id) }),
+            CommentActions.getComments({ postId: Number(this.postDetail.id) }),
           );
         }
       }),
 
-      this.postDetail$.subscribe((post) => {
-        if (post && post.id) {
-          console.log('oni1');
+      this.createLikeSuccess$.subscribe((success) => {
+        if (success) {
+          this.isLoading = false;
           this.store.dispatch(
-            LikeActions.getIsLiked({ postId: Number(post.id) }),
+            LikeActions.getLikepostCount({
+              postId: Number(this.postDetail.id),
+            }),
+          );
+          this.store.dispatch(
+            LikeActions.getIsLiked({ postId: Number(this.postDetail.id) }),
           );
         }
       }),
 
-      this.postDetail$.subscribe((post) => {
-        if (post && post.id) {
-          console.log('oni2');
+      this.isDeleteLikeSuccess$.subscribe((success) => {
+        if (success) {
+          this.isLoading = false;
+          console.log('deget');
           this.store.dispatch(
-            LikeActions.getLikepostCount({ postId: Number(post.id) }),
+            LikeActions.getLikepostCount({
+              postId: Number(this.postDetail.id),
+            }),
+          );
+          this.store.dispatch(
+            LikeActions.getIsLiked({ postId: Number(this.postDetail.id) }),
           );
         }
       }),
+
+      // this.postDetail$.subscribe((post) => {
+      //   if (post && post.id) {
+      //     this.store.dispatch(
+      //       CommentActions.getComments({ postId: Number(post.id) }),
+      //     );
+      //   }
+      // }),
+      //
+      // this.postDetail$.subscribe((post) => {
+      //   if (post && post.id) {
+      //     console.log('oni1');
+      //     this.store.dispatch(
+      //       LikeActions.getIsLiked({ postId: Number(post.id) }),
+      //     );
+      //   }
+      // }),
+      //
+      // this.postDetail$.subscribe((post) => {
+      //   if (post && post.id) {
+      //     console.log('oni2');
+      //     this.store.dispatch(
+      //       LikeActions.getLikepostCount({ postId: Number(post.id) }),
+      //     );
+      //   }
+      // }),
     );
+
+    this.activeRoute.url.subscribe((url) => {
+      const urlSegment = url.join('/');
+      if (urlSegment.startsWith('detail/')) {
+        const id = BigInt(urlSegment.split('/')[1]);
+        //convert string to bigint
+
+        this.store.dispatch(PostActions.GetPostById({ id: id }));
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.store.dispatch(PostActions.ClearPostDetail());
-    this.store.dispatch(PostActions.ClearAllPosts());
     this.store.dispatch(LikeActions.clearLikePostState());
+    this.store.dispatch(CommentActions.clearState());
   }
 
   postDetail: PostModel = <PostModel>{};
@@ -177,6 +255,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   currentIndex = 0;
 
   createComment() {
+    this.isLoading = true;
     console.log(this.commentForm.value.text);
     this.postDetail$.subscribe((post) => {
       if (post && post.id) {
@@ -191,13 +270,6 @@ export class DetailComponent implements OnInit, OnDestroy {
       CommentActions.createComment({ comment: this.commentData }),
     );
 
-    this.createCommentSuccess$.subscribe((success) => {
-      if (success) {
-        this.store.dispatch(
-          CommentActions.getComments({ postId: this.commentData.postId }),
-        );
-      }
-    });
     this.commentForm.reset();
     // this.commentList$.subscribe((comments) => {
     //   console.log(comments);
@@ -205,6 +277,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   }
 
   createLikePost() {
+    this.isLoading = true;
     this.postDetail$.pipe(take(1)).subscribe((post) => {
       if (post && post.id) {
         console.log('cre');
@@ -214,21 +287,10 @@ export class DetailComponent implements OnInit, OnDestroy {
         );
       }
     });
-
-    this.createLikedSuccess$.subscribe((success) => {
-      if (success) {
-        console.log('get');
-        this.store.dispatch(
-          LikeActions.getLikepostCount({ postId: this.likePostData.postId }),
-        );
-        this.store.dispatch(
-          LikeActions.getIsLiked({ postId: this.likePostData.postId }),
-        );
-      }
-    });
   }
 
   unlikePost() {
+    this.isLoading = true;
     this.postDetail$.pipe(take(1)).subscribe((post) => {
       if (post && post.id) {
         console.log('de');
@@ -236,17 +298,6 @@ export class DetailComponent implements OnInit, OnDestroy {
 
         this.store.dispatch(
           LikeActions.deleteLike({ postId: Number(post.id) }),
-        );
-      }
-    });
-    this.isDeleteLikeSuccess$.subscribe((success) => {
-      if (success) {
-        console.log('deget');
-        this.store.dispatch(
-          LikeActions.getLikepostCount({ postId: this.likePostData.postId }),
-        );
-        this.store.dispatch(
-          LikeActions.getIsLiked({ postId: this.likePostData.postId }),
         );
       }
     });

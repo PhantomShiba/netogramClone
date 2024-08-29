@@ -15,6 +15,10 @@ import { Subscription } from 'rxjs';
 import { PostModel, PostResponse } from '../../../models/post.model';
 import { ProfileModel } from '../../../models/profile.model';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
+import {FriendshipState} from "../../../ngrx/friend-ship/friendship.state";
+import * as FriendshipActions from "../../../ngrx/friend-ship/friendship.actions";
+import {FriendShipModel} from "../../../models/friend-ship.model";
+import {getMutualFriends} from "../../../ngrx/friend-ship/friendship.actions";
 
 @Component({
   selector: 'app-profile',
@@ -31,6 +35,15 @@ import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+
+  friendRequestSentData: FriendShipModel = {
+    friendUid: '',
+    status: '',
+    createdAt: '',
+    id: 0,
+    uid: ''
+  };
+
   constructor(
     private location: Location,
     private activeRoute: ActivatedRoute,
@@ -38,6 +51,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private store: Store<{
       post: PostState;
       profile: ProfileState;
+      friendship: FriendshipState
     }>,
   ) {
     const { uid } = this.activeRoute.snapshot.params;
@@ -50,7 +64,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         limitNumber: this.size,
       }),
     );
-
+    this.store.dispatch(FriendshipActions.getFriendshipStatus({friendUid: this.yourUid}));
     // window.scrollTo({ top: window.innerHeight * 0.3, behavior: 'auto'});
   }
 
@@ -59,6 +73,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   subscriptions: Subscription[] = [];
 
+  mutualFriends$ = this.store.select('friendship', 'mutualFriends');
+  isUnfriendSuccess$ = this.store.select('friendship', 'isDeleteSuccess');
+  isSentFriendRequestSuccess$ = this.store.select('friendship', 'isCreateSuccess');
+  isGetFriendshipStatus$ = this.store.select('friendship', 'friendshipStatusSuccess');
+  friendshipStatus$ = this.store.select('friendship', 'friendshipStatus');
   profileByUid$ = this.store.select('profile', 'profile');
   minePosts$ = this.store.select('post', 'minePosts');
   isGettingMinePost$ = this.store.select('post', 'isGettingMinePost');
@@ -76,6 +95,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.store.dispatch(PostActions.ClearMinePost());
+    this.store.dispatch(FriendshipActions.clearFriendshipState());
   }
 
   goBack(): void {
@@ -112,6 +132,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
       }),
     );
+    this.isGetFriendshipStatus$.subscribe((success) => {
+      if(success) {
+        this.friendshipStatus$.subscribe((status) => {
+          console.log(status);
+        });
+      }
+    })
+    this.getMutualFriends();
   }
 
   profileEdit(): void {
@@ -119,6 +147,33 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ProfileEditComponent, {
       width: '100px',
     });
+  }
+
+  sentFriendRequest() {
+    this.friendRequestSentData = {...this.friendRequestSentData,friendUid: this.yourUid};
+    this.store.dispatch(FriendshipActions.addFriend({friendShipModel: this.friendRequestSentData}));
+
+    this.isSentFriendRequestSuccess$.subscribe((success) => {
+      if(success) {
+        this.store.dispatch(FriendshipActions.getFriendshipStatus({friendUid: this.yourUid}));
+      }
+    })
+  }
+
+  getMutualFriends() {
+    if (this.mineUid != this.yourUid) {
+      this.store.dispatch(FriendshipActions.getMutualFriends({uid: this.mineUid, friendUid: this.yourUid}));
+    }
+  }
+
+  sendUnfriend() {
+    this.store.dispatch(FriendshipActions.unfriend({friendUid: this.yourUid, uid: this.mineUid}));
+
+    this.isUnfriendSuccess$.subscribe((success) => {
+      if (success) {
+        this.store.dispatch(FriendshipActions.getFriendshipStatus({friendUid: this.yourUid}));
+      }
+    })
   }
 
   onScrollDown(ev: any) {
