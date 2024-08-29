@@ -19,6 +19,8 @@
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+
 }
 
 
@@ -107,12 +109,12 @@ mat-form-field {
 
 .submit-button {
   width: 100%;
-  color: var(--surfaceContainer);
+  color: var(--onPrimary);
   background-color: var(--primary);
   border-radius: 12px;
 
-
 }
+
 
 .profile-picture-container button,
 .cover-photo-container button {
@@ -142,6 +144,27 @@ mat-form-field {
   background-color: rgba(0, 0, 0, 0.09);
 }
 
+//div ::-webkit-scrollbar-track {
+//  background-color: #fff;
+//}
+//
+///* scrollbar itself */
+//div ::-webkit-scrollbar-thumb {
+//  background-color: #babac0;
+//  border-radius: 16px;
+//  border: 4px solid #fff;
+//}
+//
+///* set button(top and bottom of the scrollbar) */
+//div ::-webkit-scrollbar-button {
+//  display:none;
+//}
+
+.spinner-loading {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 ::-webkit-scrollbar-thumb:vertical {
   background: rgba(0,0,0,0.5);
   -webkit-border-radius: 100px;

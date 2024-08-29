@@ -1,18 +1,40 @@
 <div class="fullwcontainer">
   <div class="container">
     <div class="left">
-      <img
-        src="https://s3-alpha-sig.figma.com/img/c5a3/3479/c49de5e37183d320456e6f5439c3cd09?Expires=1724025600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=eMWpyqjm-b-tElZXg3RjuXMrPqD0e7ZwuX4W-e0NUh~UnW7vmMI7L0k6pLsq1P-ST-nni~gkrOB87XF~crQ7qxBgmftH35yXvIrTotg1rV7oafr6CbpaQf01wR3LfIv~Bb8PLPSc9MdF02sw5NT9FNBT0cetvtS5psQrhGBCBWt50Reu380Nd4xaKzNDiComyQ0-hILsNeq7rbWD~UzNjzjHvZAGva6fUwLOAYJiSoiu7wBi9fLUxGJkCsqLaXofDtEdT6v4pgcjfRLGsAcAez0nncoIJTkkcZg4stOec9Gc--EvkWimbIDbKDU5MC0uV~su1EA0OofO5dZmHoBhbA__">
+      <img src="../../../../public/images/logo.png"/>
     </div>
     <div class="main">
       <div class="search">
         <span class="material-symbols-outlined">
-          search
+          <search></search>
         </span>
-        <input [formControl]="searchControl" placeholder="Search" id="searchInput"(keyup)="onSearchKeyUp($event)">
+        <input [formControl]="searchControl"
+               placeholder="Search profiles"
+               id="searchInput"
+               (keyup)="onSearchKeyUp($event)"
+               [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="navigateToProfile($event.option.value)">
+          <mat-option *ngIf="!searchControl.value" disabled>
+            Nothing is searched yet
+          </mat-option>
+          <mat-option
+            *ngFor="let profile of searchControl">
+            <mat-card-content>
+              <div class="user-item">
+                <div class="user-info">
+                  <img [src]="profile.uid| idToAvatar |async"
+                       [alt]="profile"
+                       (click)="navigateToProfile(profile)" class="user-avatar">
+                  <div class="user-details">
+                    <div class="user-name">{{ profile.uid|idToName|async }}</div>
+                  </div>
+                </div>
+          </mat-option>
+          <mat-option *ngIf="(filterProfiles(searchControl.value) | async)?.length === 0 && searchControl.value" disabled>
+            No matching profiles found
+          </mat-option>
+        </mat-autocomplete>
       </div>
-
-
     </div>
     <div class="right">
       <div (click)="setActive(link)" [ngClass]="{'active': this.activeLink == true}" id="notiIcon">

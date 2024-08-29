@@ -36,4 +36,9 @@ export class SearchController {
   async deleteIndexPost(@Param('id') id: number) {
     return this.searchService.deleteIndexPost(id);
   }
+
+  @Get('anyOne')
+  findAllUserPost(@Query('q') q: string) {
+    return this.searchService.searchUserPosts(q);
+  }
 }

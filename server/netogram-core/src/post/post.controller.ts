@@ -97,7 +97,7 @@ export class PostController {
 
   //delete post by id with uid
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    return this.postService.deletePost(id);
+  async remove(@Param('id') id: number, @Query('uid') uid: string) {
+    return this.postService.deletePost(id, uid);
   }
 }

@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { MaterialModule } from '../../shared/material.module';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { debounceTime, filter } from 'rxjs/operators';
+import {debounceTime, filter, map} from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { ProfileState } from '../../ngrx/profile/profile.state';
 import * as AuthActions from '../../ngrx/auth/auth.actions';
 import * as ProfileActions from '../../ngrx/profile/profile.actions';
-import { Subscription } from 'rxjs';
+import {async, Observable, Subscription} from 'rxjs';
 import { ProfileModel } from '../../models/profile.model';
 import { AuthState } from '../../ngrx/auth/auth.state';
 import { AuthService } from '../../services/auth/auth.service';
@@ -16,11 +16,13 @@ import { FormControl } from '@angular/forms';
 import { SearchState } from '../../ngrx/search/search.state';
 import * as SearchActions from '../../ngrx/search/search.actions';
 import {MatDialog} from "@angular/material/dialog";
+import {IdToAvatarPipe} from "../../shared/pipes/id-to-avatar.pipe";
+import {IdToNamePipe} from "../../shared/pipes/id-to-name.pipe";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [MaterialModule, NgClass, AsyncPipe, ShareModule],
+  imports: [MaterialModule, NgClass, AsyncPipe, ShareModule, IdToAvatarPipe, IdToNamePipe],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
@@ -50,7 +52,7 @@ export class NavbarComponent implements OnInit {
 
   activeLink = false;
 
-  searchControl = new FormControl();
+  searchControl = new FormControl('');
 
   searchResults: any;
 
@@ -84,13 +86,43 @@ export class NavbarComponent implements OnInit {
       this.searchControl.valueChanges
         .pipe(debounceTime(1000))
         .subscribe((query) => {
-          this.store.dispatch(SearchActions.search({ query }));
+          if (query) {
+            this.store.dispatch(SearchActions.search({ query }));
+          }
         }),
 
       this.searchResult$.subscribe((searchResult) => {
         this.searchResults = searchResult;
       }),
+
     );
+  }
+
+  filterProfiles(value: string | null): Observable<ProfileModel[]> {
+    if (value === null) {
+      value = '';
+    }
+    return this.searchResult$.pipe(
+      map((searchResult) => {
+        if (searchResult && searchResult.profiles) {
+          return searchResult.profiles.filter((profile) =>
+            profile.userName.toLowerCase().includes(value!.toLowerCase())
+          );
+        } else {
+          return [];
+        }
+      }),
+    );
+  }
+
+  navigateToProfile(profile: ProfileModel) {
+    if (profile.userName) {
+      this.route.navigateByUrl(`/profile/${profile.userName}`).then(() => {
+        this.store.dispatch(ProfileActions.getById({ uid: profile.uid }));
+        this.searchControl.setValue('');
+        this.dialog.closeAll();
+      });
+    }
   }
 
   setActive(link: any) {
@@ -112,9 +144,9 @@ export class NavbarComponent implements OnInit {
       console.log('Close dialog');
       this.dialog.closeAll();
       if (query && query.trim() !== '') {
-        this.route.navigate(['/search-result'], {queryParams: {search: query}}).then(r =>{});
+        this.route.navigate(['/search-result'], {queryParams: {search: query}});
       }
     }
   }
+  protected readonly async = async;
 }
-

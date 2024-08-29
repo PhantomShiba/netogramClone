@@ -103,6 +103,7 @@ mat-form-field ::ng-deep .mdc-notched-outline__trailing {
   left: 50%;
   top: 50%;
 }
+
 .example-card {
   border: none;
   padding: 20px;
@@ -156,11 +157,11 @@ mat-form-field ::ng-deep .mdc-notched-outline__trailing {
     cursor: pointer;
     height: 50px;
     font-size: 15px;
-    width: 25%;
+    width: 27%;
   }
 
   mat-form-field {
-    width: 65%;
+    width: 60%;
     max-height: 55px;
     background-color: var(--surfaceContainer);
     border-radius: 12px;

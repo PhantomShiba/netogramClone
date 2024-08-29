@@ -83,7 +83,7 @@ export const GetMinePostFailure = createAction(
 //delete post
 export const DeletePost = createAction(
   '[Post] Delete Post',
-  props<{ id: bigint }>(),
+  props<{ id: bigint; uid: string }>(),
 );
 
 export const DeletePostSuccess = createAction('[Post] Delete Post Success');

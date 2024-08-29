@@ -95,7 +95,7 @@ export class PostEffects {
     return this.actions$.pipe(
       ofType(PostActions.DeletePost),
       switchMap((action) => {
-        return this.postService.deletePost(action.id).pipe(
+        return this.postService.deletePost(action.id, action.uid).pipe(
           map(() => {
             return PostActions.DeletePostSuccess();
           }),

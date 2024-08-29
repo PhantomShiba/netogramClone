@@ -115,10 +115,16 @@ export class PostService {
   }
 
   //delete post
-  async deletePost(id: number) {
+  async deletePost(id: number, uid: string) {
     const post = await this.findPostById(id);
-
     //check if the post is owned by the user
+    console.log("post id",post.uid);
+    console.log("post id",uid);
+
+
+    if (post.uid !== uid) {
+      throw new NotFoundException('You are not the owner of this post');
+    }
 
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -130,6 +136,5 @@ export class PostService {
     await this.searchService.deletePost(post.id);
   }
 
-  //search post by content
 
 }

@@ -59,6 +59,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   storage$ = this.store.select('storage', 'url');
   storageCover$ = this.store.select('storage', 'urlCover');
   isUpdateSuccess$ = this.store.select('profile', 'isUpdateSuccess');
+  isUpdateLoading$ = this.store.select('storage', 'isUploading');
   profileMine: ProfileModel = <ProfileModel>{};
 
   submissionStatus: 'success' | 'error' | null = null;
@@ -96,6 +97,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.forEach((sub) => sub.unsubscribe());
     this.store.dispatch(StorageActions.clearStorageState());
+    this.store.dispatch(ProfileActions.clearUpdateState());
   }
 
   ngOnInit(): void {
@@ -168,7 +170,14 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
 
       console.log(this.profileData);
     } else {
-      this.submissionStatus = 'success';
+      this.submissionStatus = 'error';
+      // Reset invalid form controls to their old values
+      Object.keys(this.profileForm.controls).forEach((key) => {
+        const control = this.profileForm.get(key);
+        if (control && control.invalid) {
+          control.setValue(this.profileMine[key as keyof ProfileModel]);
+        }
+      });
     }
   }
 

@@ -86,7 +86,7 @@
       <mat-icon>chevron_left</mat-icon>
     </div>
     <div class="carousel-images"
-         (click)="navigateToDetail()"
+         (click)=" openPostDetail(postUser.id)"
          #carousel>
       @for (image of postUser.imageUrls; track $index) {
         <img src="{{image}}"
@@ -109,7 +109,7 @@
       <mat-icon>{{ shareIcon }}</mat-icon>
       SHARE
     </button>
-    <button mat-button (click)="deletePost()">
+    <button *ngIf="isProfilePage && postUser.uid === mineUid" mat-button (click)="deletePost()">
       <mat-icon>{{ shareIcon }}</mat-icon>
       delete
     </button>

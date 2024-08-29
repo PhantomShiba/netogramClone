@@ -1,5 +1,6 @@
 import { CanActivateFn, Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { DetailComponent } from './page/detail/detail.component';
 
 export const routes: Routes = [
   {
